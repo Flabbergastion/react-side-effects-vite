@@ -1,28 +1,38 @@
-import { useState, useEffect } from 'react'
-import JokeDisplay from './components/JokeDisplay'
-import FetchButton from './components/FetchButton'
+import React, { useState, useEffect } from 'react';
+import FetchButton from './components/FetchButton.jsx';
+import JokeDisplay from './components/JokeDisplay.jsx';
 
-function App() {
-  // Step 1: Create state variables for `joke` and `loading`
+const App = () => {
+  const [joke, setJoke] = useState('');
+  const [isLoading, setIsLoading] = useState(true);
 
-  // Step 2: Use `useEffect` to call a function that fetches a joke when the component mounts
+  // Function to fetch the joke from the API
+  const fetchJoke = async () => {
+    setIsLoading(true); // Set loading to true while fetching
+    try {
+      const response = await fetch('https://v2.jokeapi.dev/joke/Programming?type=single');
+      const data = await response.json();
+      setJoke(data.joke); // Update the joke state with the fetched data
+    } catch (error) {
+      setJoke('Failed to fetch a joke. Please try again.');
+      console.error('Error fetching joke:', error);
+    } finally {
+      setIsLoading(false); // Set loading to false after the fetch is complete
+    }
+  };
 
-  // Step 3: Define a function that fetches a programming joke from an API
-  // - Start by setting `loading` to true
-  // - Fetch a joke from "https://v2.jokeapi.dev/joke/Programming?type=single"
-  // - Update the `joke` state with the fetched joke
-  // - Set `loading` to false once the joke is loaded
-  // - Handle any errors in the `.catch` block
+  // useEffect hook to fetch a joke on the initial render
+  useEffect(() => {
+    fetchJoke();
+  }, []); // The empty dependency array ensures this runs only once
 
   return (
-    <div className="app">
-      <h1>Programming Jokes</h1>
-      {/* Step 4: Pass the necessary props to JokeDisplay */}
-      <JokeDisplay />
-      {/* Step 5: Pass the function to FetchButton so it can fetch a new joke on click */}
-      <FetchButton />
+    <div className="app-container">
+      <h1>Programming Joke Generator</h1>
+      <JokeDisplay joke={joke} isLoading={isLoading} />
+      <FetchButton onClick={fetchJoke} />
     </div>
-  )
-}
+  );
+};
 
-export default App
+export default App;
